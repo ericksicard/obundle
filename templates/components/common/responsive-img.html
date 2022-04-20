@@ -35,27 +35,36 @@ There are a few important arguments to know about when using this component:
     pixels wide will be used otherwise. This argument has no effect if the lazyload mode is not "lazyload+lqip".
 
 --}}
-<img {{#if image}}{{!-- Get the default image for legacy browsers that do not support srcset
---}}src="{{getImageSrcset image 1x=(default fallback_size '160w')}}" alt="{{image.alt}}" title="{{image.alt}}" {{!--
-  Allow lazysizes to generate the 'sizes' attribute automatically --}}data-sizes="auto"
-  {{#unless lazyload '==' 'disabled'}}
-    {{#if lazyload '==' 'lazyload+lqip'}}
-    {{!-- If we want a LQIP, include it as the default srcset (will be overwritten by lazysizes) --}}
-    srcset="{{getImageSrcset image 1x=(default lqip_size '80w')}}"
-    {{else}}
-      {{!-- If we don't want a LQIP, use a 1px transparent gif for the stand-in image
-            This requires no additional network request, so it's fast --}}
-    srcset="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+<img
+    {{#if image}}
+        {{!-- Get the default image for legacy browsers that do not support srcset --}}
+        src="{{getImageSrcset image 1x=(default fallback_size '160w')}}" 
+        alt="{{image.alt}}" 
+        title="{{image.alt}}"
+        {{!-- Allow lazysizes to generate the 'sizes' attribute automatically --}}
+        data-sizes="auto"
+        {{#unless lazyload '==' 'disabled'}}
+        {{#if lazyload '==' 'lazyload+lqip'}}
+            {{!-- If we want a LQIP, include it as the default srcset (will be overwritten by lazysizes) --}}
+            srcset="{{getImageSrcset image 1x=(default lqip_size '80w')}}"
+        {{else}}
+            {{!-- If we don't want a LQIP, use a 1px transparent gif for the stand-in image This requires no additional network request, so it's fast --}}
+        srcset="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+        {{/if}}
+        {{/unless}}
+        {{!-- If lazyloading is disabled, just use "srcset". If it is not disabled, use "data-srcset" so lazysizes will use
+          this after page load --}}
+        {{!--
+        Generate the srcset string using the default sizes defined in the helper. This will allow the browser to
+        pick the best-sized image based on its own understanding of how it will render the page.
+        --}}
+        {{#unless lazyload '==' 'disabled'}}data-{{/unless}}srcset="{{getImageSrcset image use_default_sizes=true }}"
+        {{else if default_image}}
+            src="{{cdn default_image}}" alt="{{lang 'products.card_default_image_alt'}}"
     {{/if}}
-{{/unless}}
-{{!-- If lazyloading is disabled, just use "srcset". If it is not disabled, use "data-srcset" so lazysizes will use
-      this after page load --}}
-{{!--
-Generate the srcset string using the default sizes defined in the helper. This will allow the browser to
-pick the best-sized image based on its own understanding of how it will render the page.
---}}
-{{#unless lazyload '==' 'disabled'}}data-{{/unless}}srcset="{{getImageSrcset image use_default_sizes=true }}"
-{{else if default_image}}src="{{cdn default_image}}" alt="{{lang 'products.card_default_image_alt'}}"{{/if}}
-class="{{#unless lazyload '==' 'disabled'}}lazyload{{/unless}}{{#if class}} {{class}}{{/if}}"
-{{#if lazyload '==' 'lazyload'}}loading="lazy"{{/if}}
-{{otherAttributes}} />
+    class="{{#unless lazyload '==' 'disabled'}}lazyload{{/unless}}{{#if class}} {{class}}{{/if}}"
+    {{#if lazyload '==' 'lazyload'}}
+        loading="lazy"
+    {{/if}}
+    {{otherAttributes}} 
+/>

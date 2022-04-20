@@ -27,8 +27,26 @@ export default class Category extends CatalogPage {
         $('a.navList-action').on('click', () => this.setLiveRegionAttributes($('span.price-filter-message'), 'status', 'assertive'));
     }
 
+    //* * Start - Hover effect */
+    hoverEffect() {
+        const cards = document.querySelectorAll('.card-figure');
+        cards.forEach(card => {
+            const cardImage = card.querySelector('.card-image');
+            card.addEventListener('mouseenter', () => {
+                cardImage.src = cardImage.dataset.hoverimage;
+            });
+            card.addEventListener('mouseleave', () => {
+                cardImage.src = cardImage.dataset.src;
+            });
+        });
+    }
+    //* * End - Hover effect */
+
     onReady() {
         this.arrangeFocusOnSortBy();
+
+        //* * Calling function for OBundle test */
+        this.hoverEffect();
 
         $('[data-button-type="add-cart"]').on('click', (e) => this.setLiveRegionAttributes($(e.currentTarget).next(), 'status', 'polite'));
 
