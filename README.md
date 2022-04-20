@@ -15,7 +15,6 @@ If a customer is logged in - at the top of the category page show a banner that 
 
 
 ## Implementation
-Occasionally you may need to use dynamic data from the template context within your client-side theme application code.
 
 ### Task 1
 Completed at the storefront dashboard
