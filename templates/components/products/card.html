@@ -1,6 +1,10 @@
 <article
-    class="card    
-    {{#if alternate}} card--alternate{{/if}}"
+    class="card"
+    
+    {{!-- Passing product id --}}
+    data-id={{id}}
+    
+    {{#if alternate}} card--alternate{{/if}}
     data-test="card-{{id}}"
     {{#if settings.data_tag_enabled}}
         data-event-type="{{event}}"

@@ -47,7 +47,12 @@ category:
         {{/if}}
     {{/if}}
 
-    <div class="page-content" id="product-listing-container">
+    <div class="page-content" id="product-listing-container">        
+        <div class="category-cart-buttons">
+            <button class="button button--primary" id="addAllToCart">Add All To Cart</button>    
+            <button class="button button-hidden" id="removeAllFromCart">Remove All Items</button>
+        </div>
+        <p class="all-items-button-message"></p>
         {{> components/category/product-listing}}
         {{{region name="category_below_content"}}}
     </div>

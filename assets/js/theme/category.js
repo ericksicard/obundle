@@ -3,11 +3,14 @@ import CatalogPage from './catalog';
 import compareProducts from './global/compare-products';
 import FacetedSearch from './common/faceted-search';
 import { createTranslationDictionary } from '../theme/common/utils/translations-utils';
+import cartPreview from './global/cart-preview';
+import { parseInt } from 'lodash';
 
 export default class Category extends CatalogPage {
     constructor(context) {
         super(context);
         this.validationDictionary = createTranslationDictionary(context);
+        this.cartId = context.cartId;
     }
 
     setLiveRegionAttributes($element, roleType, ariaLiveStatus) {
@@ -42,11 +45,131 @@ export default class Category extends CatalogPage {
     }
     //* * End - Hover effect */
 
+    //* * Start - Add all to cart */
+    createLineItems() {
+        const products = document.querySelectorAll('.card');
+        const cartItems = { lineItems: [] };
+        products.forEach(product => {
+            const lineItem = {
+                quantity: 1,
+                productId: parseInt(product.dataset.id),
+            };
+            cartItems.lineItems.push(lineItem);
+        });
+        return cartItems;
+    }
+
+    async createCart(url, cartItems) {
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(cartItems),
+            });
+            return await response.json();
+        } catch (error) {
+            // eslint-disable-next-line no-console
+            console.error(error);
+        }
+    }
+
+    async addItemsToCart(url, cartId, cartItems) {
+        try {
+            const response = await fetch(`${url}/${cartId}/items`, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(cartItems),
+            });
+            return await response.json();
+        } catch (error) {
+            // eslint-disable-next-line no-console
+            console.error(error);
+        }
+    }
+
+    toggleRemoveAllFromCart(bool) {
+        const removeAllButton = document.querySelector('#removeAllFromCart');
+        if (bool) {
+            removeAllButton.classList.remove('button-hidden');
+        } else {
+            removeAllButton.classList.add('button-hidden');
+        }
+    }
+
+    showMessage(message) {
+        const paragraph = document.querySelector('.all-items-button-message');
+        paragraph.innerText = message;
+        paragraph.style.opacity = 1;
+        setTimeout(() => {
+            paragraph.style.opacity = 0;
+        }, 10000);
+    }
+
+    addAllToCart() {
+        const addAllButton = document.querySelector('#addAllToCart');
+        addAllButton.addEventListener('click', async () => {
+            const cartItems = this.createLineItems();
+            if (!this.cartId) {
+                const createdCart = await this.createCart('/api/storefront/carts', cartItems);
+                this.cartId = createdCart.id;
+                this.toggleRemoveAllFromCart(true);
+            } else {
+                await this.addItemsToCart('/api/storefront/carts', this.cartId, cartItems);
+            }
+            this.showMessage('Added all items in this category to cart.');
+            cartPreview(this.context.secureBaseUrl, this.cartId);
+        });
+    }
+    //* * End -Add all to cart */
+
+    //* * Start - Removing all items */
+    async deleteCart(url, cartId) {
+        try {
+            await fetch(`${url}/${cartId}`, {
+                method: 'DELETE',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            return;
+        } catch (error) {
+            // eslint-disable-next-line no-console
+            console.error(error);
+        }
+    }
+
+    removeAllFromCart() {
+        const removeAllButton = document.querySelector('#removeAllFromCart');
+        if (removeAllButton) {
+            removeAllButton.addEventListener('click', () => {
+                this.deleteCart('/api/storefront/carts', this.cartId);
+                this.cartId = null;
+                this.showMessage('The cart has been emptied');
+                cartPreview(this.context.secureBaseUrl, this.cartId);
+                this.toggleRemoveAllFromCart(false);
+            });
+        }
+    }
+    //* * End - Removing all items */
+
     onReady() {
         this.arrangeFocusOnSortBy();
 
         //* * Calling function for OBundle test */
         this.hoverEffect();
+        this.addAllToCart();
+        this.removeAllFromCart();
+        if (!this.cartId) this.toggleRemoveAllFromCart(false);
+        else this.toggleRemoveAllFromCart(false);
 
         $('[data-button-type="add-cart"]').on('click', (e) => this.setLiveRegionAttributes($(e.currentTarget).next(), 'status', 'polite'));
 

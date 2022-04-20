@@ -1,6 +1,7 @@
 __webpack_public_path__ = window.__webpack_public_path__; // eslint-disable-line
 
 import Global from './theme/global';
+import 'regenerator-runtime/runtime';
 
 const getAccount = () => import('./theme/account');
 const getLogin = () => import('./theme/auth');
