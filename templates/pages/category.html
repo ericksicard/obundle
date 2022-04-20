@@ -47,7 +47,16 @@ category:
         {{/if}}
     {{/if}}
 
-    <div class="page-content" id="product-listing-container">        
+    <div class="page-content" id="product-listing-container">
+        {{#if customer}}
+        <div>
+            <p>Customer Name: {{customer.name}}<br/>
+            Customer Email: {{customer.email}}</p>
+            {{#if customer.phone}}
+                <p>Customer Phone: {{customer.phone}}</p>
+            {{/if}}
+        </div>
+        {{/if}}        
         <div class="category-cart-buttons">
             <button class="button button--primary" id="addAllToCart">Add All To Cart</button>    
             <button class="button button-hidden" id="removeAllFromCart">Remove All Items</button>
